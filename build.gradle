@@ -1,0 +1,40 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.springframework.boot' version '3.2.4'
+}
+
+group = 'is.yarr.qilletni.toolchain'
+version = '1.0.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = '21'
+}
+
+application {
+    mainClass = 'is.yarr.qilletni.toolchain.QilletniToolchainApplication'
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+//    implementation 'org.springframework:spring-core:6.1.5'
+
+    implementation 'org.jcommander:jcommander:1.83'
+    implementation 'is.yarr.qilletni:Qilletni:1.0-SNAPSHOT'
+
+    // Configs
+    implementation 'org.yaml:snakeyaml:2.2'
+
+    // SLF4J API dependency
+    implementation 'org.apache.logging.log4j:log4j-api:2.22.1'
+    implementation 'org.apache.logging.log4j:log4j-core:2.22.1'
+    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.22.1'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
