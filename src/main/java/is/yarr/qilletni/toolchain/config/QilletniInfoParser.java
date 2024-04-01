@@ -43,8 +43,6 @@ public class QilletniInfoParser {
 
             if (Files.exists(qilletniInfoFile)) {
                 return Optional.of(qilletniInfoFile);
-            } else {
-                LOGGER.debug("not exist: {}", qilletniInfoFile);
             }
         }
         
