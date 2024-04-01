@@ -2,92 +2,60 @@ package is.yarr.qilletni.toolchain.qll;
 
 import is.yarr.qilletni.api.auth.ServiceProvider;
 import is.yarr.qilletni.api.lib.Library;
-import is.yarr.qilletni.toolchain.qll.classes.DirectoryClassLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.FileVisitOption;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
+import java.util.Optional;
+import java.util.ServiceLoader;
 
 public class NativeClassHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NativeClassHandler.class);
 
-    public NativeClassOutput collectNativeClasses(Path outPath, Path javaBuildPath) throws IOException {
-        String libraryClass = null;
-        String providerClass = null;
+    private final String libraryName;
 
-        var classOutDir = outPath.resolve("native");
-        Files.createDirectories(classOutDir);
-
-        List<String> classNames;
-        try (var walk = Files.walk(javaBuildPath, FileVisitOption.FOLLOW_LINKS)) {
-            classNames = walk.filter(path -> path.getFileName().toString().endsWith(".class"))
-                    .map(classFile -> {
-                        var relativeBuildDir = javaBuildPath.relativize(classFile);
-                        var classTarget = classOutDir.resolve(relativeBuildDir);
-
-                        var className = relativeBuildDir.toString()
-                                .replace(File.separator, ".")
-                                .replace(".class", "");
-
-                        try {
-                            Files.createDirectories(classTarget.getParent());
-                            Files.copy(classFile, classTarget);
-                        } catch (IOException e) {
-                            throw new UncheckedIOException(e);
-                        }
-
-                        return className;
-                    }).toList();
-        }
-        
-        LOGGER.debug("Moved {} .class files to {}", classNames.size(), classOutDir.toAbsolutePath());
-
-        try (var loader = new DirectoryClassLoader(classOutDir)) {
-            for (var className : classNames) {
-                var clazz = loader.loadClassByName(className);
-
-                if (Library.class.isAssignableFrom(clazz)) {
-                    if (libraryClass != null) {
-                        LOGGER.warn("Loading .qll with multiple library classes, ignoring {}", className);
-                    } else {
-                        libraryClass = className;
-                    }
-                }
-
-                if (ServiceProvider.class.isAssignableFrom(clazz)) {
-                    if (providerClass != null) {
-                        LOGGER.warn("Loading .qll with multiple provider classes, ignoring {}", className);
-                    } else {
-                        providerClass = className;
-                    }
-                }
-            }
-        } catch (ClassNotFoundException e) {
-            LOGGER.error("Unable to load a native class", e);
-        }
-
-        if (libraryClass != null) {
-            LOGGER.debug("Library class: {}", libraryClass);
-        }
-
-        if (providerClass != null) {
-            LOGGER.debug("Provider class: {}", providerClass);
-        }
-
-        return new NativeClassOutput(libraryClass, providerClass);
+    public NativeClassHandler(String libraryName) {
+        this.libraryName = libraryName;
     }
 
-    public void deleteDirectory(Path file) {
-        
+    public NativeClassOutput collectNativeClasses(Path outPath, Path javaBuildJar) throws IOException {
+        Files.copy(javaBuildJar, outPath.resolve("native.jar"));
+
+        try (var loader = new URLClassLoader(new URL[]{javaBuildJar.toUri().toURL()}, NativeClassHandler.class.getClassLoader())) {
+            var libraryClass = findFirstOfService(loader, Library.class, "libraries");
+            var providerClass = findFirstOfService(loader, ServiceProvider.class, "providers");
+
+            libraryClass.ifPresent(library -> LOGGER.debug("Library class: {}", library.getCanonicalName()));
+            providerClass.ifPresent(provider -> LOGGER.debug("Provider class: {}", provider.getCanonicalName()));
+
+            return new NativeClassOutput(libraryClass.orElse(null), providerClass.orElse(null));
+        }
     }
 
-    public record NativeClassOutput(String libraryClass, String providerClass) {}
+    private <T> Optional<Class<? extends T>> findFirstOfService(ClassLoader classLoader, Class<T> serviceType, String displayName) {
+        var serviceLoader = ServiceLoader.load(serviceType, classLoader);
 
+        var libraries = serviceLoader.stream().map(ServiceLoader.Provider::type).toList();
+
+        if (libraries.isEmpty()) {
+            return Optional.empty();
+        }
+
+        if (libraries.size() > 1) {
+            LOGGER.warn("Found multiple {} in {}, using only {}", displayName, libraryName, libraries.getFirst().getCanonicalName());
+        }
+
+        return Optional.of(libraries.getFirst());
+    }
+
+    public record NativeClassOutput(String libraryClass, String providerClass) {
+        public NativeClassOutput(Class<?> libraryClass, Class<?> providerClass) {
+            this(libraryClass != null ? libraryClass.getCanonicalName() : null, providerClass != null ? providerClass.getCanonicalName() : null);
+        }
+    }
 }

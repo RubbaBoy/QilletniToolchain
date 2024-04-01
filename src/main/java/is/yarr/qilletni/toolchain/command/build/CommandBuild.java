@@ -26,7 +26,7 @@ public class CommandBuild implements Callable<Integer> {
     @CommandLine.Parameters(description = "The directory that contains source Qilletni .ql files", index = "0")
     public Path sourcePath;
     
-    @CommandLine.Option(names = {"--java-path", "-j"}, description = "The directory that contains build Java .class files")
+    @CommandLine.Option(names = {"--java-path", "-j"}, description = "The modular .jar path of native implementations")
     public Path javaBuildPath;
     
     @CommandLine.Option(names = {"--dependency-path", "-d"}, description = "The directory that contains all .qll dependencies")
@@ -36,7 +36,7 @@ public class CommandBuild implements Callable<Integer> {
     public Integer call() throws IOException {
         LOGGER.debug("Called build! {}", this);
 
-        LOGGER.debug("Java .class files are in: {}", javaBuildPath);
+        LOGGER.debug("Java .jar is: {}", javaBuildPath);
         LOGGER.debug("Qilletni .ql files are in: {}", sourcePath);
         LOGGER.debug("Libraries are located in: {}", dependencyPath);
 
@@ -45,7 +45,7 @@ public class CommandBuild implements Callable<Integer> {
 
         LOGGER.debug("Qilletni Info = {}", qilletniInfo);
 
-        var nativeClassHandler = new NativeClassHandler();
+        var nativeClassHandler = new NativeClassHandler(qilletniInfo.name());
         var qilletniSourceHandler = new QilletniSourceHandler();
 
         var outParent = sourcePath.getParent().resolve("qilletni-out");

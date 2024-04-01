@@ -1,9 +1,0 @@
-module QilletniToolchain.main {
-    requires org.slf4j;
-    requires org.yaml.snakeyaml;
-//    requires jcommander;
-    requires Qilletni.qilletni.api.main;
-    requires jcommander;
-//    requires jcommander;
-//    requires jcommanderd;
-}
