@@ -18,4 +18,8 @@ public class QllInfoGenerator {
         Files.writeString(destinationDir.resolve("qll.info"), json);
     }
     
+    public QllInfo readQllInfo(Path qllInfoPath) throws IOException {
+        return gson.fromJson(Files.readString(qllInfoPath), QllInfo.class);
+    }
+    
 }

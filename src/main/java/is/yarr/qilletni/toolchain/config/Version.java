@@ -37,6 +37,10 @@ public class Version {
     public int patch() {
         return patch;
     }
+    
+    public String getVersionString() {
+        return "%d.%d.%d".formatted(major, minor, patch);
+    }
 
     @Override
     public boolean equals(Object obj) {
