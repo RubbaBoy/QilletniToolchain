@@ -3,7 +3,10 @@ package is.yarr.qilletni.toolchain.qll;
 import com.google.gson.Gson;
 import is.yarr.qilletni.toolchain.config.QllInfo;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -18,8 +21,8 @@ public class QllInfoGenerator {
         Files.writeString(destinationDir.resolve("qll.info"), json);
     }
     
-    public QllInfo readQllInfo(Path qllInfoPath) throws IOException {
-        return gson.fromJson(Files.readString(qllInfoPath), QllInfo.class);
+    public QllInfo readQllInfo(InputStream qllInfoPath) throws IOException {
+        return gson.fromJson(new InputStreamReader(qllInfoPath), QllInfo.class);
     }
     
 }

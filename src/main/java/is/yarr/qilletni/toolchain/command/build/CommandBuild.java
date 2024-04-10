@@ -33,8 +33,11 @@ public class CommandBuild implements Callable<Integer> {
     @CommandLine.Option(names = {"--dependency-path", "-d"}, description = "The directory that contains all .qll dependencies")
     public Path dependencyPath;
     
+    @CommandLine.Option(names = {"--build-directory", "-b"}, description = "The build directory", required = true)
+    public Path buildDirectory;
+    
     // Ends in .qll: use as file. Otherwise, use as destination directory
-    @CommandLine.Option(names = {"--output-path", "-o"}, description = "The destination directory or .qll file output of the library")
+    @CommandLine.Option(names = {"--output-file", "-o"}, description = "The directory or file name of the build .qll")
     public Path outputFilePath;
 
     @Override
@@ -44,7 +47,8 @@ public class CommandBuild implements Callable<Integer> {
         LOGGER.debug("Java .jar is: {}", javaBuildPath);
         LOGGER.debug("Qilletni .ql files are in: {}", sourcePath);
         LOGGER.debug("Libraries are located in: {}", dependencyPath);
-        LOGGER.debug("Output directory/file: {}", outputFilePath);
+        LOGGER.debug("Build directory: {}", buildDirectory);
+        LOGGER.debug("Output file/directory: {}", outputFilePath);
 
         var infoParser = new QilletniInfoParser();
         var qilletniInfo = infoParser.readQilletniInfo(sourcePath);
@@ -53,22 +57,22 @@ public class CommandBuild implements Callable<Integer> {
 
         var nativeClassHandler = new NativeClassHandler(qilletniInfo.name());
         var qilletniSourceHandler = new QilletniSourceHandler();
+        
+        var qllBuildPath = buildDirectory.resolve("ql-build");
 
-        var outParent = sourcePath.getParent().resolve("qilletni-out");
-        FileUtil.deleteDirectory(outParent);
-        Files.createDirectories(outParent);
+        FileUtil.clearAndCreateDirectory(qllBuildPath);
 
-        var analyzed = nativeClassHandler.collectNativeClasses(outParent, javaBuildPath);
+        var analyzed = nativeClassHandler.collectNativeClasses(qllBuildPath, javaBuildPath);
 
-        qilletniSourceHandler.moveQilletniSource(outParent, sourcePath);
+        qilletniSourceHandler.moveQilletniSource(qllBuildPath, sourcePath);
 
         LOGGER.debug("analyzed = {}", analyzed);
 
         var qllInfoGenerator = new QllInfoGenerator();
-        qllInfoGenerator.writeQllInfo(new QllInfo(qilletniInfo, analyzed.libraryClass(), analyzed.providerClass()), outParent);
+        qllInfoGenerator.writeQllInfo(new QllInfo(qilletniInfo, analyzed.libraryClass(), analyzed.providerClass()), qllBuildPath);
         
         var defaultQllFileName = "%s-%s.qll".formatted(qilletniInfo.name(), qilletniInfo.version().getVersionString());
-        var destinationFile = sourcePath.resolve(defaultQllFileName);
+        Path destinationFile;
 
         if (outputFilePath != null) {
             if (outputFilePath.getFileName().toString().endsWith(".qll")) {
@@ -78,18 +82,21 @@ public class CommandBuild implements Callable<Integer> {
             } else {
                 // Is a parent directory
                 Files.createDirectories(outputFilePath);
-                destinationFile = outputFilePath.resolve(destinationFile);
+                destinationFile = outputFilePath.resolve(defaultQllFileName);
             }
+        } else {
+            var qllOutPath = buildDirectory.resolve("qll");
+            FileUtil.clearAndCreateDirectory(qllOutPath);
+            
+            destinationFile = qllOutPath.resolve(defaultQllFileName);;
         }
         
-        LOGGER.debug("Destination .qll file: {}", destinationFile);
+        LOGGER.debug("Writing {}", destinationFile);
         
-        LOGGER.debug("Writing {}.qll", qilletniInfo.name());
-
         var qllPackager = new QllPackager();
         
-        qllPackager.packageQll(outParent, destinationFile);
-
+        qllPackager.packageQll(qllBuildPath, destinationFile);
+        
         return 0;
     }
 

@@ -6,12 +6,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.Vector;
 
 public class NativeClassHandler {
 
@@ -47,10 +50,10 @@ public class NativeClassHandler {
         }
 
         if (libraries.size() > 1) {
-            LOGGER.warn("Found multiple {} in {}, using only {}", displayName, libraryName, libraries.getFirst().getCanonicalName());
+            LOGGER.warn("Found multiple {} in {}, using only {}", displayName, libraryName, libraries.get(0).getCanonicalName());
         }
 
-        return Optional.of(libraries.getFirst());
+        return Optional.of(libraries.get(0));
     }
 
     public record NativeClassOutput(String libraryClass, String providerClass) {

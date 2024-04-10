@@ -6,7 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class FileUtil {
-    
+
     public static void deleteDirectory(Path file) {
         try {
             if (Files.isDirectory(file)) {
@@ -20,5 +20,17 @@ public class FileUtil {
             throw new UncheckedIOException(e);
         }
     }
-    
+
+    public static void clearAndCreateDirectory(Path directory) {
+        try {
+            if (Files.exists(directory)) {
+                deleteDirectory(directory);
+            }
+            
+            Files.createDirectories(directory);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

@@ -7,4 +7,5 @@ module QilletniToolchain.main {
     requires Qilletni.qilletni.api.main;
     requires info.picocli;
     requires com.google.gson;
+    requires is.yarr.qilletni.Qilletni.main;
 }

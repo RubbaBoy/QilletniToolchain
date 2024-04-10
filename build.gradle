@@ -7,7 +7,8 @@ group = 'is.yarr.qilletni.toolchain'
 version = '1.0.0-SNAPSHOT'
 
 java {
-    sourceCompatibility = '21'
+    sourceCompatibility = '20'
+//    targetCompatibility = '21'
 }
 
 application {
@@ -23,8 +24,10 @@ dependencies {
     implementation 'info.picocli:picocli:4.7.5'
     annotationProcessor 'info.picocli:picocli-codegen:4.7.5'
     
-    implementation 'is.yarr.qilletni:Qilletni:1.0-SNAPSHOT'
-    implementation 'is.yarr.qilletni.api:qilletni-api:1.0-SNAPSHOT'
+    implementation 'is.yarr.qilletni:Qilletni:1.0.0-SNAPSHOT'
+    implementation 'is.yarr.qilletni:Qilletni:1.0.0-SNAPSHOT:sources'
+    
+    implementation 'is.yarr.qilletni.api:qilletni-api:1.0.0-SNAPSHOT'
 
     // Configs
     implementation 'org.yaml:snakeyaml:2.2'
@@ -38,6 +41,18 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile).each {
+    it.options.compilerArgs.add('--enable-preview')
+}
+
+tasks.withType(Test) {
+    jvmArgs += "--enable-preview"
+}
+
+tasks.withType(JavaExec) {
+    jvmArgs += '--enable-preview'
 }
 
 compileJava {
