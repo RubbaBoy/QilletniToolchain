@@ -61,6 +61,11 @@ public class CommandBuild implements Callable<Integer> {
         var qllBuildPath = buildDirectory.resolve("ql-build");
 
         FileUtil.clearAndCreateDirectory(qllBuildPath);
+        
+        if (Files.notExists(javaBuildPath)) {
+            LOGGER.error("{} not found! Ensure you have ran `gradle :shadowJar` on the library first", javaBuildPath);
+            return 1;
+        }
 
         var analyzed = nativeClassHandler.collectNativeClasses(qllBuildPath, javaBuildPath);
 

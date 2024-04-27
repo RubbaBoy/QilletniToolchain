@@ -13,6 +13,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -32,7 +33,9 @@ public class QllJarClassLoader extends ClassLoader {
     private final Map<String, List<String>> serviceContents = new HashMap<>();
     private final Map<String, URL> services = new HashMap<>();
     
-    public QllJarClassLoader() {
+    private final Map<String, InputStream> inputStreams = new HashMap<>();
+    
+    public QllJarClassLoader(Path tempRunDir) {
     }
 
     public void loadJar(InputStream inputStream) throws IOException {
@@ -44,13 +47,15 @@ public class QllJarClassLoader extends ClassLoader {
             
             if (entryName.endsWith(".class")) {
                 var className = entryName.replace('/', '.')
-                        .substring(0, entryName.length() - 6);
+                        .substring(0, entryName.length() - 6); 
 
                 classes.put(className, jarInputStream.readAllBytes());
             } else if (entryName.startsWith("META-INF/services/")) {
                 var list = serviceContents.computeIfAbsent(entryName, k -> new ArrayList<>());
                 list.add(new String(jarInputStream.readAllBytes()));
                 serviceContents.put(entryName, list);
+            } else {
+//                inputStreams.putIfAbsent(entryName, jarInputStream.)
             }
         }
     }

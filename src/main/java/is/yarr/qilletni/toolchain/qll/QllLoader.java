@@ -22,7 +22,7 @@ public class QllLoader {
     
     private static final Path SRC_PATH = Paths.get("src");
     
-    public QllInfo loadQll(QllJarClassLoader qllJarClassLoader, LibrarySourceFileResolver librarySourceFileResolver, Path qllPath) throws IOException, URISyntaxException {
+    public QllInfo loadQll(LibrarySourceFileResolver librarySourceFileResolver, Path qllPath) throws IOException, URISyntaxException {
         LOGGER.debug("Loading {}", qllPath);
         
         QllInfo qllInfo;
@@ -34,7 +34,7 @@ public class QllLoader {
             
             LOGGER.debug("qllInfo = {}", qllInfo);
             
-            qllJarClassLoader.loadJar(zipFile.getInputStream(zipFile.getEntry("native.jar")));
+//            qllJarClassLoader.loadJar(zipFile.getInputStream(zipFile.getEntry("native.jar")));
             
             var sourceMap = new HashMap<String, String>();
             
@@ -53,11 +53,10 @@ public class QllLoader {
                         }
                     });
             
-            LOGGER.debug("Library resolver for {}: {}", qllInfo.name(), sourceMap);
-            
             librarySourceFileResolver.addLibraryResolver(qllInfo.name(), key -> {
-                LOGGER.debug("Getting file: {}   where all files are: {}", key, sourceMap.keySet());
-                LOGGER.debug("\t^ got: {}", sourceMap.get(key));
+//                LOGGER.debug("Getting file: {}   where all files are: {}", key, sourceMap.keySet());
+//                var got = sourceMap.get(key);
+//                LOGGER.debug("\t^ got: {}", got.substring(0, Math.min(10, got.length())));
                 return sourceMap.get(key);
             });
         }
