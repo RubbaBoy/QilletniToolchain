@@ -7,8 +7,8 @@ group = 'is.yarr.qilletni.toolchain'
 version = '1.0.0-SNAPSHOT'
 
 java {
-    sourceCompatibility = '20'
-//    targetCompatibility = '21'
+    sourceCompatibility = '22'
+    targetCompatibility = '22'
 }
 
 application {
@@ -28,6 +28,7 @@ dependencies {
     implementation 'is.yarr.qilletni:Qilletni:1.0.0-SNAPSHOT:sources'
     
     implementation 'is.yarr.qilletni.api:qilletni-api:1.0.0-SNAPSHOT'
+    implementation 'is.yarr.qilletni.docgen:QilletniDocgen:1.0.0-SNAPSHOT'
 
     // Configs
     implementation 'org.yaml:snakeyaml:2.2'
@@ -41,18 +42,6 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
-}
-
-tasks.withType(JavaCompile).each {
-    it.options.compilerArgs.add('--enable-preview')
-}
-
-tasks.withType(Test) {
-    jvmArgs += "--enable-preview"
-}
-
-tasks.withType(JavaExec) {
-    jvmArgs += '--enable-preview'
 }
 
 compileJava {

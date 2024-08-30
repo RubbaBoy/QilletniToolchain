@@ -1,12 +1,13 @@
 package is.yarr.qilletni.toolchain;
 
+import is.yarr.qilletni.toolchain.command.doc.CommandDoc;
 import is.yarr.qilletni.toolchain.command.build.CommandBuild;
 import is.yarr.qilletni.toolchain.command.run.CommandRun;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
-@CommandLine.Command(name = "qilletni", subcommands = {CommandRun.class, CommandBuild.class})
+@CommandLine.Command(name = "qilletni", subcommands = {CommandRun.class, CommandBuild.class, CommandDoc.class})
 public class QilletniToolchainApplication {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QilletniToolchainApplication.class);

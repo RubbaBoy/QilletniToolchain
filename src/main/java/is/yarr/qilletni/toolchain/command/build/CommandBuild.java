@@ -1,9 +1,8 @@
 package is.yarr.qilletni.toolchain.command.build;
 
+import is.yarr.qilletni.api.lib.qll.QllInfo;
 import is.yarr.qilletni.toolchain.FileUtil;
 import is.yarr.qilletni.toolchain.config.QilletniInfoParser;
-import is.yarr.qilletni.toolchain.config.QllInfo;
-import is.yarr.qilletni.toolchain.qll.NativeClassHandler;
 import is.yarr.qilletni.toolchain.qll.QilletniSourceHandler;
 import is.yarr.qilletni.toolchain.qll.QllInfoGenerator;
 import is.yarr.qilletni.toolchain.qll.QllPackager;
@@ -55,7 +54,6 @@ public class CommandBuild implements Callable<Integer> {
 
         LOGGER.debug("Qilletni Info = {}", qilletniInfo);
 
-        var nativeClassHandler = new NativeClassHandler(qilletniInfo.name());
         var qilletniSourceHandler = new QilletniSourceHandler();
         
         var qllBuildPath = buildDirectory.resolve("ql-build");
@@ -67,14 +65,15 @@ public class CommandBuild implements Callable<Integer> {
             return 1;
         }
 
-        var analyzed = nativeClassHandler.collectNativeClasses(qllBuildPath, javaBuildPath);
+        Files.copy(javaBuildPath, qllBuildPath.resolve("native.jar"));
+//        var analyzed = nativeClassHandler.collectNativeClasses(qllBuildPath, javaBuildPath);
 
         qilletniSourceHandler.moveQilletniSource(qllBuildPath, sourcePath);
 
-        LOGGER.debug("analyzed = {}", analyzed);
+//        LOGGER.debug("analyzed = {}", analyzed);
 
         var qllInfoGenerator = new QllInfoGenerator();
-        qllInfoGenerator.writeQllInfo(new QllInfo(qilletniInfo, analyzed.libraryClass(), analyzed.providerClass()), qllBuildPath);
+        qllInfoGenerator.writeQllInfo(new QllInfo(qilletniInfo), qllBuildPath);
         
         var defaultQllFileName = "%s-%s.qll".formatted(qilletniInfo.name(), qilletniInfo.version().getVersionString());
         Path destinationFile;

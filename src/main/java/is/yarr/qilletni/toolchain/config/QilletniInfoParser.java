@@ -1,5 +1,8 @@
 package is.yarr.qilletni.toolchain.config;
 
+import is.yarr.qilletni.api.lib.qll.ComparableVersion;
+import is.yarr.qilletni.api.lib.qll.QilletniInfoData;
+import is.yarr.qilletni.api.lib.qll.Version;
 import is.yarr.qilletni.toolchain.exceptions.InvalidVersionException;
 import is.yarr.qilletni.toolchain.exceptions.QilletniInfoFormatException;
 import org.slf4j.Logger;
@@ -70,6 +73,10 @@ public class QilletniInfoParser {
         var version = Version.parseVersionString((String) Objects.requireNonNull(obj.get("version"), "'version' required in qilletni_info"))
                 .orElseThrow(() -> new InvalidVersionException("Invalid version"));
         
+        var providerClass = (String) obj.getOrDefault("provider", null);
+        var nativeBindFactoryClass = (String) obj.getOrDefault("native_bind_factory", null);
+        var nativeClasses = (List<String>) obj.getOrDefault("native_classes", Collections.emptyList());
+        var autoImportFiles = (List<String>) obj.getOrDefault("auto_import", Collections.emptyList());
         var dependencies = (List<String>) obj.getOrDefault("dependencies", Collections.emptyList());
         
         var dependencyList = dependencies.stream().map(dependencyString -> {
@@ -86,7 +93,7 @@ public class QilletniInfoParser {
             return new QilletniInfoData.Dependency(dependencyName, dependencyVersion);
         }).toList();
         
-        return new QilletniInfoData(nameString, version, authorString, dependencyList);
+        return new QilletniInfoData(nameString, version, authorString, providerClass, nativeBindFactoryClass, nativeClasses, autoImportFiles, dependencyList);
     }
     
 }

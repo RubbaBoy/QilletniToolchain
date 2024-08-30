@@ -6,6 +6,12 @@
     </Console>
 </Appenders>
 <Loggers>
+    <Logger name="is.yarr.qilletni.toolchain" level="debug" additivity="false">
+        <AppenderRef ref="Console"/>
+    </Logger>
+    <Logger name="is.yarr.qilletni.docgen" level="debug" additivity="false">
+        <AppenderRef ref="Console"/>
+    </Logger>
     <Logger name="is.yarr.qilletni" level="info" additivity="false">
         <AppenderRef ref="Console"/>
     </Logger>

@@ -3,10 +3,9 @@ package is.yarr.qilletni.toolchain.command.run;
 import is.yarr.qilletni.ServiceManager;
 import is.yarr.qilletni.api.auth.ServiceProvider;
 import is.yarr.qilletni.api.exceptions.QilletniException;
-import is.yarr.qilletni.api.lib.Library;
+import is.yarr.qilletni.api.lib.qll.QllInfo;
 import is.yarr.qilletni.lang.runner.QilletniProgramRunner;
 import is.yarr.qilletni.lib.LibrarySourceFileResolver;
-import is.yarr.qilletni.toolchain.qll.QllJarClassLoader;
 import is.yarr.qilletni.toolchain.qll.QllJarExtractor;
 import is.yarr.qilletni.toolchain.qll.QllLoader;
 import org.slf4j.Logger;
@@ -21,6 +20,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.concurrent.Callable;
 
@@ -60,6 +61,8 @@ public class CommandRun implements Callable<Integer> {
         var qllLoader = new QllLoader();
         var qllJarExtractor = new QllJarExtractor();
         var librarySourceFileResolver = new LibrarySourceFileResolver();
+        
+        var loadedLibraries = new ArrayList<QllInfo>();
 
         try (var deps = Files.list(dependencyPath)) {
             deps.filter(path -> path.getFileName().toString().endsWith(".qll"))
@@ -67,7 +70,7 @@ public class CommandRun implements Callable<Integer> {
                         qllJarExtractor.extractJarTo(path, tempRunDir);
 
                         try {
-                            qllLoader.loadQll(librarySourceFileResolver, path);
+                            loadedLibraries.add(qllLoader.loadQll(librarySourceFileResolver, path));
                         } catch (IOException | URISyntaxException e) {
                             throw new RuntimeException(e);
                         }
@@ -85,9 +88,22 @@ public class CommandRun implements Callable<Integer> {
 
         try {
             Thread.currentThread().setContextClassLoader(qllJarClassLoader);
-            var dynamicProvider = ServiceManager.createDynamicProvider(qllJarClassLoader);
 
-            var runner = new QilletniProgramRunner(dynamicProvider, librarySourceFileResolver, qllJarClassLoader);
+//            System.out.println("loadedLibraries = " + loadedLibraries);
+//
+//            System.out.println(loadedLibraries.stream()
+//                    .map(QllInfo::providerClass)
+//                    .filter(Objects::nonNull).toList());
+//
+//            try {
+//                System.out.println(qllJarClassLoader.loadClass("is.yarr.qilletni.music.spotify.provider.SpotifyServiceProvider"));
+//            } catch (ClassNotFoundException e) {
+//                throw new RuntimeException(e);
+//            }
+            
+            var dynamicProvider = ServiceManager.createDynamicProvider(loadedLibraries);
+
+            var runner = new QilletniProgramRunner(dynamicProvider, librarySourceFileResolver, loadedLibraries);
 
             runner.importInitialFiles();
 

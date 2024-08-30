@@ -1,7 +1,7 @@
 package is.yarr.qilletni.toolchain.qll;
 
+import is.yarr.qilletni.api.lib.qll.QllInfo;
 import is.yarr.qilletni.lib.LibrarySourceFileResolver;
-import is.yarr.qilletni.toolchain.config.QllInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,13 +52,11 @@ public class QllLoader {
                             }
                         }
                     });
-            
-            librarySourceFileResolver.addLibraryResolver(qllInfo.name(), key -> {
-//                LOGGER.debug("Getting file: {}   where all files are: {}", key, sourceMap.keySet());
-//                var got = sourceMap.get(key);
-//                LOGGER.debug("\t^ got: {}", got.substring(0, Math.min(10, got.length())));
-                return sourceMap.get(key);
-            });
+
+            //                LOGGER.debug("Getting file: {}   where all files are: {}", key, sourceMap.keySet());
+            //                var got = sourceMap.get(key);
+            //                LOGGER.debug("\t^ got: {}", got.substring(0, Math.min(10, got.length())));
+            librarySourceFileResolver.addLibraryResolver(qllInfo.name(), sourceMap::get);
         }
 
         return qllInfo;
