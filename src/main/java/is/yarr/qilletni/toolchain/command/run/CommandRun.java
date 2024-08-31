@@ -111,8 +111,11 @@ public class CommandRun implements Callable<Integer> {
                 runner.runProgram(file);
             } catch (QilletniException | IOException e) {
                 LOGGER.error("An exception occurred while running " + file.getFileName(), e);
+                runner.shutdown();
                 return 1;
             }
+
+            runner.shutdown();
         } finally {
             Thread.currentThread().setContextClassLoader(currentClassLoader);
         }

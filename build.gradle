@@ -1,4 +1,5 @@
 plugins {
+    id 'idea'
     id 'java'
     id 'application'
 }
@@ -46,4 +47,11 @@ tasks.named('test') {
 
 compileJava {
     options.compilerArgs += ["-Aproject=${project.group}/${project.name}"]
+}
+
+idea{
+    module {
+        downloadJavadoc = true // defaults to false
+        downloadSources = true
+    }
 }
