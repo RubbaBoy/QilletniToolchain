@@ -7,10 +7,8 @@ plugins {
 group = 'is.yarr.qilletni.toolchain'
 version = '1.0.0-SNAPSHOT'
 
-java {
-    sourceCompatibility = '22'
-    targetCompatibility = '22'
-}
+sourceCompatibility = JavaVersion.VERSION_22
+targetCompatibility = JavaVersion.VERSION_22
 
 application {
     mainClass = 'is.yarr.qilletni.toolchain.QilletniToolchainApplication'
@@ -47,6 +45,10 @@ tasks.named('test') {
 
 compileJava {
     options.compilerArgs += ["-Aproject=${project.group}/${project.name}"]
+}
+
+tasks.named('run', JavaExec) {
+    standardInput = System.in
 }
 
 idea{
