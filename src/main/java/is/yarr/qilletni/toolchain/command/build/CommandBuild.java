@@ -60,12 +60,15 @@ public class CommandBuild implements Callable<Integer> {
 
         FileUtil.clearAndCreateDirectory(qllBuildPath);
         
-        if (Files.notExists(javaBuildPath)) {
-            LOGGER.error("{} not found! Ensure you have ran `gradle :shadowJar` on the library first", javaBuildPath);
-            return 1;
+        if (javaBuildPath != null) {
+            if (Files.notExists(javaBuildPath)) {
+                LOGGER.error("{} not found! Ensure you have ran `gradle :shadowJar` on the library first", javaBuildPath);
+                return 1;
+            }
+
+            Files.copy(javaBuildPath, qllBuildPath.resolve("native.jar"));
         }
 
-        Files.copy(javaBuildPath, qllBuildPath.resolve("native.jar"));
 //        var analyzed = nativeClassHandler.collectNativeClasses(qllBuildPath, javaBuildPath);
 
         qilletniSourceHandler.moveQilletniSource(qllBuildPath, sourcePath);

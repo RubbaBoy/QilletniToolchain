@@ -2,14 +2,26 @@
 <Configuration status="WARN">
 <Appenders>
     <Console name="Console" target="SYSTEM_OUT">
-        <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%p]: %msg%n"/>
+        <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%p] [%C]: %msg%n"/>
     </Console>
 </Appenders>
 <Loggers>
+    <Logger name="org.hibernate" level="warn" additivity="false">
+        <AppenderRef ref="Console"/>
+    </Logger>
     <Logger name="is.yarr.qilletni.toolchain" level="debug" additivity="false">
         <AppenderRef ref="Console"/>
     </Logger>
     <Logger name="is.yarr.qilletni.docgen" level="debug" additivity="false">
+        <AppenderRef ref="Console"/>
+    </Logger>
+    <Logger name="is.yarr.qilletni.lib.json" level="info" additivity="false">
+        <AppenderRef ref="Console"/>
+    </Logger>
+    <Logger name="is.yarr.qilletni.lang.internal" level="info" additivity="false">
+        <AppenderRef ref="Console"/>
+    </Logger>
+    <Logger name="is.yarr.qilletni.lang.table" level="info" additivity="false">
         <AppenderRef ref="Console"/>
     </Logger>
     <Logger name="is.yarr.qilletni" level="info" additivity="false">

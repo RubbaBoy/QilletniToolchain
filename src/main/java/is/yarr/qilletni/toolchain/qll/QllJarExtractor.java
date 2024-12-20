@@ -22,6 +22,12 @@ public class QllJarExtractor {
         
         try (var fileSystem = FileSystems.newFileSystem(jarPath)) {
             var path = fileSystem.getPath("native.jar");
+            
+            // Not all libraries have native methods
+            if (Files.notExists(path)) {
+                return;
+            }
+            
             Files.copy(path, destinationFile);
 
             extractedJars.add(destinationFile.toUri().toURL());
