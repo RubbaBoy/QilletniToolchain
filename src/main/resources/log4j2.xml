@@ -9,25 +9,25 @@
     <Logger name="org.hibernate" level="warn" additivity="false">
         <AppenderRef ref="Console"/>
     </Logger>
-    <Logger name="is.yarr.qilletni.toolchain" level="debug" additivity="false">
+    <Logger name="is.yarr.qilletni.toolchain" level="${sys:TOOLCHAIN_LOG_LEVEL:-INFO}" additivity="false">
         <AppenderRef ref="Console"/>
     </Logger>
-    <Logger name="is.yarr.qilletni.docgen" level="debug" additivity="false">
+    <Logger name="is.yarr.qilletni.docgen" level="${sys:DOCGEN_LOG_LEVEL:-INFO}" additivity="false">
         <AppenderRef ref="Console"/>
     </Logger>
-    <Logger name="is.yarr.qilletni.lib.json" level="info" additivity="false">
+<!--    <Logger name="is.yarr.qilletni.lib.json" level="info" additivity="false">-->
+<!--        <AppenderRef ref="Console"/>-->
+<!--    </Logger>-->
+    <Logger name="is.yarr.qilletni.lang.internal" level="${sys:INTERNAL_LOG_LEVEL:-INFO}" additivity="false">
         <AppenderRef ref="Console"/>
     </Logger>
-    <Logger name="is.yarr.qilletni.lang.internal" level="info" additivity="false">
+    <Logger name="is.yarr.qilletni.lang.table" level="${sys:INTERNAL_LOG_LEVEL:-INFO}" additivity="false">
         <AppenderRef ref="Console"/>
     </Logger>
-    <Logger name="is.yarr.qilletni.lang.table" level="info" additivity="false">
+    <Logger name="is.yarr.qilletni" level="${sys:LOG_LEVEL:-INFO}" additivity="false">
         <AppenderRef ref="Console"/>
     </Logger>
-    <Logger name="is.yarr.qilletni" level="info" additivity="false">
-        <AppenderRef ref="Console"/>
-    </Logger>
-    <Root level="info" >
+    <Root level="${sys:OTHER_LOG_LEVEL:-INFO}" >
         <AppenderRef ref="Console"/>
     </Root>
 </Loggers>

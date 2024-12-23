@@ -15,13 +15,13 @@ public class ProjectInit {
     private static final String GRADLE_VERSION = "8.8";
     
     /**
-     * 
-     * @param sourcePath The project directory
+     * @param sourcePath      The project directory
      * @param projectName
      * @param authorName
      * @param nativeInit
+     * @param projectTypeEnum
      */
-    public void initialize(Path sourcePath, String projectName, String authorName, NativeInit nativeInit) throws IOException, URISyntaxException {
+    public void initialize(Path sourcePath, String projectName, String authorName, NativeInit nativeInit, ProjectType projectTypeEnum) throws IOException, URISyntaxException {
         Files.createDirectories(sourcePath);
         
         var qilletniSrc = sourcePath.resolve("qilletni-src");
@@ -35,12 +35,19 @@ public class ProjectInit {
         
         Files.writeString(qilletniSrc.resolve("qilletni_info.yml"), yml);
 
-        var qilletniExamples = sourcePath.resolve("examples");
-        Files.createDirectories(qilletniExamples);
+        if (projectTypeEnum == ProjectType.LIBRARY) {
+            var qilletniExamples = sourcePath.resolve("examples");
+            Files.createDirectories(qilletniExamples);
 
-        LOGGER.debug("Creating started files...");
-        createStarterFile(projectName, qilletniSrc, nativeInit);
-        createExample(projectName, qilletniExamples, nativeInit);
+            LOGGER.debug("Creating library starter files...");
+
+            createExample(projectName, qilletniExamples, nativeInit);
+            createLibraryStarterFile(projectName, qilletniSrc, nativeInit);
+        } else if (projectTypeEnum == ProjectType.APPLICATION) {
+            LOGGER.debug("Creating application starter files...");
+            
+            createApplicationStarterFile(projectName, qilletniSrc, nativeInit);
+        }
         
         if (nativeInit != null) {
             LOGGER.debug("Creating Gradle project...");
@@ -49,10 +56,33 @@ public class ProjectInit {
         }
     }
     
-    private void createStarterFile(String projectName, Path destinationDir, NativeInit nativeInit) throws IOException {
+    private void createApplicationStarterFile(String projectName, Path destinationDir, NativeInit nativeInit) throws IOException {
+        var starterFileContents = "";
+
+        if (nativeInit != null) {
+            starterFileContents += """
+                    native fun sayGoodbye()
+                    """;
+        }
+        
+        starterFileContents += """
+                print("Hello, World!")
+                """;
+        
+        if (nativeInit != null) {
+            starterFileContents += """
+                    
+                    sayGoodbye()
+                    """;
+        }
+        
+        Files.writeString(destinationDir.resolve("%s.ql".formatted(projectName)), starterFileContents);
+    }
+    
+    private void createLibraryStarterFile(String projectName, Path destinationDir, NativeInit nativeInit) throws IOException {
         var starterFileContents = """
                 fun sayHello() {
-                    println("Hello, World!")
+                    print("Hello, World!")
                 }
                 """;
 

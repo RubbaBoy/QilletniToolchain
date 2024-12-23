@@ -1,8 +1,7 @@
 package is.yarr.qilletni.toolchain.command.init;
 
-import is.yarr.qilletni.toolchain.config.QilletniInfoParser;
-import is.yarr.qilletni.toolchain.docs.DocumentationOrchestrator;
 import is.yarr.qilletni.toolchain.init.ProjectInit;
+import is.yarr.qilletni.toolchain.init.ProjectType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -31,10 +30,26 @@ public class CommandInit implements Callable<Integer> {
 
     @CommandLine.Option(names = {"--native-class", "-c"}, description = "The native canonical class name to initialize a project with. If no class is specified, native bindings will not be set up.")
     public String nativeClass;
+
+    @CommandLine.Option(names = {"--type", "-t"}, description = "The type of the project to initialize, either 'library' or 'application'", defaultValue = "application")
+    public String projectType;
     
     @Override
     public Integer call() throws Exception {
         LOGGER.debug("Initializing in: {}", sourcePath);
+
+        ProjectType projectTypeEnum;
+        
+        if ("library".equals(projectType)) {
+            LOGGER.debug("Creating library project");
+            projectTypeEnum = ProjectType.LIBRARY;
+        } else if ("application".equals(projectType)) {
+            LOGGER.debug("Creating application project");
+            projectTypeEnum = ProjectType.APPLICATION;
+        } else {
+            LOGGER.error("Invalid project type: {}", projectType);
+            return 1;
+        }
 
         var scanner = new Scanner(System.in);
         
@@ -68,7 +83,7 @@ public class CommandInit implements Callable<Integer> {
             nativeInit = new ProjectInit.NativeInit(packageName, className);
         }
 
-        new ProjectInit().initialize(sourcePath.toAbsolutePath(), projectName, authorName, nativeInit);
+        new ProjectInit().initialize(sourcePath.toAbsolutePath(), projectName, authorName, nativeInit, projectTypeEnum);
 
         
         return 0;

@@ -2,6 +2,7 @@ plugins {
     id 'idea'
     id 'java'
     id 'application'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group = 'is.yarr.qilletni.toolchain'
@@ -51,9 +52,24 @@ tasks.named('run', JavaExec) {
     standardInput = System.in
 }
 
-idea{
+idea {
     module {
         downloadJavadoc = true // defaults to false
         downloadSources = true
     }
+}
+
+shadowJar {
+    // Merge service files if needed
+    mergeServiceFiles()
+
+    // Force the multi-release attribute into the manifest
+    manifest {
+        attributes(
+                'Multi-Release': 'true'
+        )
+    }
+
+    // Keep the classifier empty if you want the final artifact to not have '-all'
+    archiveClassifier.set('')
 }

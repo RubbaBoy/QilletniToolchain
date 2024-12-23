@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# Resolve the absolute path of the QilletniToolchain JAR
+JAR_PATH="$(dirname "$(readlink -f "$0")")/QilletniToolchain-1.0.0-SNAPSHOT.jar"
+
+# Arrays to hold -D options (Java system properties) and other arguments
+java_opts=()
+other_args=()
+
+# Iterate over all passed arguments
+for arg in "$@"; do
+  # If argument starts with -D, it's a Java system property
+  if [[ "$arg" == -D* ]]; then
+    java_opts+=("$arg")
+  else
+    other_args+=("$arg")
+  fi
+done
+
+# Construct and run the java command
+# First, any -D options, then -jar, then the jar path, finally other args
+java "${java_opts[@]}" -jar "$JAR_PATH" "${other_args[@]}"

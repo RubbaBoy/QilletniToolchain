@@ -1,7 +1,6 @@
 package is.yarr.qilletni.toolchain.command.run;
 
 import is.yarr.qilletni.ServiceManager;
-import is.yarr.qilletni.api.auth.ServiceProvider;
 import is.yarr.qilletni.api.exceptions.QilletniException;
 import is.yarr.qilletni.api.lib.qll.QllInfo;
 import is.yarr.qilletni.lang.runner.QilletniProgramRunner;
@@ -14,15 +13,11 @@ import picocli.CommandLine;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.ServiceLoader;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(name = "run", description = "Runs a Qilletni program")
@@ -30,14 +25,11 @@ public class CommandRun implements Callable<Integer> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandRun.class);
     
-    @CommandLine.Option(names = {"--dependency-path", "-d"}, description = "The directory that holds all dependencies", required = true)
-    public Path dependencyPath; // TODO: Make default
+    @CommandLine.Option(names = {"--dependency-path", "-d"}, description = "The directory that holds all dependencies")
+    public Path dependencyPath;
     
-    @CommandLine.Option(names = {"--provider-cache", "-c"}, description = "The directory to providers' cache files")
-    public String providerCache;
-    
-    @CommandLine.Option(names = {"--use-credentials", "-u"}, description = "All the credential files to use with available providers")
-    public List<String> useCredentials;
+//    @CommandLine.Option(names = {"--use-credentials", "-u"}, description = "All the credential files to use with available providers")
+//    public List<String> useCredentials;
     
     @CommandLine.Option(names = {"-h", "--help"}, usageHelp = true, description = "Display a help message")
     private boolean helpRequested = false;
@@ -54,6 +46,10 @@ public class CommandRun implements Callable<Integer> {
         if (Files.notExists(file)) {
             LOGGER.error("Qilletni input file {} does not exist!", file.toAbsolutePath());
             return 1;
+        }
+        
+        if (dependencyPath == null) {
+            dependencyPath = getDependencyPath();
         }
 
         var tempRunDir = Files.createTempDirectory("ql-run");
@@ -122,6 +118,17 @@ public class CommandRun implements Callable<Integer> {
 
         return 0;
     }
+    
+    private Path getDependencyPath() throws IOException {
+        var userHome = System.getProperty("user.home");
+        
+        var qilletniDir = Paths.get(userHome, ".qilletni", "libraries");
+
+        // 3. Create the directory if it doesn't exist (including any parent dirs)
+        Files.createDirectories(qilletniDir);
+        
+        return qilletniDir;
+    }
 
     @Override
     public String toString() {
@@ -130,8 +137,6 @@ public class CommandRun implements Callable<Integer> {
                 ", file=" + file +
                 ", args=" + args +
                 ", dependencyPath='" + dependencyPath + '\'' +
-                ", providerCache='" + providerCache + '\'' +
-                ", useCredentials=" + useCredentials +
                 '}';
     }
 }
