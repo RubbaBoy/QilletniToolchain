@@ -72,4 +72,12 @@ shadowJar {
 
     // Keep the classifier empty if you want the final artifact to not have '-all'
     archiveClassifier.set('')
+
+    doLast {
+        def outputDir = file("$projectDir/scripts")
+        copy {
+            from archiveFile
+            into outputDir
+        }
+    }
 }
