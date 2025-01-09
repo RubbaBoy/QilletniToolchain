@@ -5,6 +5,7 @@ import is.yarr.qilletni.api.exceptions.QilletniException;
 import is.yarr.qilletni.api.lib.qll.QllInfo;
 import is.yarr.qilletni.lang.runner.QilletniProgramRunner;
 import is.yarr.qilletni.lib.LibrarySourceFileResolver;
+import is.yarr.qilletni.toolchain.qll.LibraryValidator;
 import is.yarr.qilletni.toolchain.qll.QllJarExtractor;
 import is.yarr.qilletni.toolchain.qll.QllLoader;
 import org.slf4j.Logger;
@@ -78,24 +79,18 @@ public class CommandRun implements Callable<Integer> {
 
         var qllJarClassLoader = qllJarExtractor.createClassLoader();
 
+        var libraryValidator = new LibraryValidator(loadedLibraries);
+        if (!libraryValidator.validate()) {
+            LOGGER.error("Exiting due to unmet dependencies");
+            return 1;
+        }
+
         LOGGER.debug("Loaded libraries!");
 
         final ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
 
         try {
             Thread.currentThread().setContextClassLoader(qllJarClassLoader);
-
-//            System.out.println("loadedLibraries = " + loadedLibraries);
-//
-//            System.out.println(loadedLibraries.stream()
-//                    .map(QllInfo::providerClass)
-//                    .filter(Objects::nonNull).toList());
-//
-//            try {
-//                System.out.println(qllJarClassLoader.loadClass("is.yarr.qilletni.music.spotify.provider.SpotifyServiceProvider"));
-//            } catch (ClassNotFoundException e) {
-//                throw new RuntimeException(e);
-//            }
             
             var dynamicProvider = ServiceManager.createDynamicProvider(loadedLibraries);
 
@@ -106,7 +101,7 @@ public class CommandRun implements Callable<Integer> {
             try {
                 runner.runProgram(file);
             } catch (QilletniException | IOException e) {
-                LOGGER.error("An exception occurred while running " + file.getFileName(), e);
+                LOGGER.error("An exception occurred while running {}", file.getFileName(), e);
                 runner.shutdown();
                 return 1;
             }
@@ -124,7 +119,6 @@ public class CommandRun implements Callable<Integer> {
         
         var qilletniDir = Paths.get(userHome, ".qilletni", "libraries");
 
-        // 3. Create the directory if it doesn't exist (including any parent dirs)
         Files.createDirectories(qilletniDir);
         
         return qilletniDir;
