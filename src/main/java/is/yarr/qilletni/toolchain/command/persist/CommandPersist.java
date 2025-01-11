@@ -53,6 +53,8 @@ public class CommandPersist implements Callable<Integer> {
             if (remove) {
                 System.out.println("Removing: " + String.join(", ", keys));
                 keys.forEach(packageConfig::remove);
+
+                packageConfig.saveConfig();
             } else {
                 var kvMap = keys.stream().collect(Collectors.toMap(Function.identity(), key -> packageConfig.get(key).orElse("- empty -")));
                 printKeyValueMap(kvMap);
