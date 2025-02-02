@@ -26,6 +26,8 @@ jobs:
 
       - name: Build Project
         run: ./gradlew clean shadowJar
+        env:
+          PACKAGE_PAT: ${{ secrets.PACKAGE_PAT }}
 
       - name: Get Gradle Version
         id: get_version
