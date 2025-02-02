@@ -6,7 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(name = "doc", description = "Generated HTML docs for Qilletni")
@@ -32,7 +35,7 @@ public class CommandDoc implements Callable<Integer> {
         LOGGER.debug("Doc output path: {}", outputFilePath);
         
         if (cachePath == null) {
-            cachePath = outputFilePath.toAbsolutePath().getParent().resolve("cache");
+            cachePath = getCachePath();
         }
         
         LOGGER.debug("Cache path: {}", cachePath);
@@ -44,5 +47,15 @@ public class CommandDoc implements Callable<Integer> {
         documentationOrchestrator.beginDocGen(qilletniInfo, cachePath, sourcePath, outputFilePath);
 
         return 0;
+    }
+
+    private Path getCachePath() throws IOException {
+        var userHome = System.getProperty("user.home");
+
+        var qilletniDir = Paths.get(userHome, ".qilletni", "doc-cache");
+
+        Files.createDirectories(qilletniDir);
+
+        return qilletniDir;
     }
 }
