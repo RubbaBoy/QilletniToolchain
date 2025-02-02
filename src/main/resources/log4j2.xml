@@ -2,29 +2,25 @@
 <Configuration status="WARN">
 <Appenders>
     <Console name="Console" target="SYSTEM_OUT">
-        <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%p] [%C]: %msg%n"/>
+<!--        <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%p] [%C]: %msg%n"/>-->
+<!--        <PatternLayout pattern="[%d{HH:mm:ss}] [%marker/%t/%p]: %msg%n"/>-->
+        <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%p]: %msg%n"/>
     </Console>
 </Appenders>
 <Loggers>
     <Logger name="org.hibernate" level="warn" additivity="false">
         <AppenderRef ref="Console"/>
     </Logger>
+    <Logger name="is.yarr.qilletni.lang.internal" level="${sys:LANG_INTERNAL_LOG_LEVEL:-INFO}" additivity="false">
+        <AppenderRef ref="Console"/>
+    </Logger>
+    <Logger name="is.yarr.qilletni" level="${sys:QL_LOG_LEVEL:-INFO}" additivity="false">
+        <AppenderRef ref="Console"/>
+    </Logger>
     <Logger name="is.yarr.qilletni.toolchain" level="${sys:TOOLCHAIN_LOG_LEVEL:-INFO}" additivity="false">
         <AppenderRef ref="Console"/>
     </Logger>
     <Logger name="is.yarr.qilletni.docgen" level="${sys:DOCGEN_LOG_LEVEL:-INFO}" additivity="false">
-        <AppenderRef ref="Console"/>
-    </Logger>
-<!--    <Logger name="is.yarr.qilletni.lib.json" level="info" additivity="false">-->
-<!--        <AppenderRef ref="Console"/>-->
-<!--    </Logger>-->
-    <Logger name="is.yarr.qilletni.lang.internal" level="${sys:INTERNAL_LOG_LEVEL:-INFO}" additivity="false">
-        <AppenderRef ref="Console"/>
-    </Logger>
-    <Logger name="is.yarr.qilletni.lang.table" level="${sys:INTERNAL_LOG_LEVEL:-INFO}" additivity="false">
-        <AppenderRef ref="Console"/>
-    </Logger>
-    <Logger name="is.yarr.qilletni" level="${sys:LOG_LEVEL:-INFO}" additivity="false">
         <AppenderRef ref="Console"/>
     </Logger>
     <Root level="${sys:OTHER_LOG_LEVEL:-INFO}" >

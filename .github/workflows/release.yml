@@ -1,10 +1,6 @@
 name: Build and Release
 
 on:
-  push:
-    branches:
-      - master
-      - actions-test
   workflow_dispatch:
 
 permissions:

@@ -1,4 +1,4 @@
-name: Generate Docs For library
+name: Generate Docs For Library
 
 on:
   workflow_dispatch:
