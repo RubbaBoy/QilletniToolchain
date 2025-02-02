@@ -1,0 +1,74 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - master
+      - actions-test
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Check out the code.
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # 2. Set up Java (using OpenJDK 22).
+      - name: Set up JDK 22
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '22'
+          cache: gradle
+
+      # 3. Build the project.
+      - name: Build Project
+        run: ./gradlew clean shadowJar
+
+      # 4. Get the Gradle version.
+      - name: Get Gradle Version
+        id: get_version
+        run: |
+          VERSION=$(./gradlew -q printVersion)
+          echo "Gradle version is: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      # 5. Set release variables based on the event type.
+      - name: Set Release Variables
+        id: set_release
+        shell: bash
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            echo "Detected push event – creating pre-release."
+            # Use the Gradle version and append the run number for uniqueness.
+            RELEASE_TAG="v${{ steps.get_version.outputs.version }}-${GITHUB_RUN_NUMBER}"
+            PRERELEASE="true"
+          else
+            echo "Detected manual trigger – creating official release."
+            RELEASE_TAG="v${{ steps.get_version.outputs.version }}"
+            PRERELEASE="false"
+          fi
+          echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_OUTPUT
+          echo "PRERELEASE=$PRERELEASE" >> $GITHUB_OUTPUT
+          echo "Release tag will be: $RELEASE_TAG and prerelease is: $PRERELEASE"
+
+      # 6. Create the GitHub release.
+#      - name: Create GitHub Release
+#        id: create_release
+#        uses: ncipollo/release-action@v1
+#        with:
+#          tag: ${{ steps.set_release.outputs.RELEASE_TAG }}
+#          name: ${{ steps.set_release.outputs.RELEASE_TAG }}
+#          prerelease: ${{ steps.set_release.outputs.PRERELEASE }}
+#          generateReleaseNotes: true
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v2
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          prerelease: ${{ steps.set_release.outputs.PRERELEASE }}
+          tag_name: ${{ steps.set_release.outputs.RELEASE_TAG }}
+          generate_release_notes: true
+          files: build/libs/QilletniToolchain.jar

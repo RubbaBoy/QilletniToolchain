@@ -1,0 +1,7 @@
+{
+  "releases": [
+    { "name": "std", "repo": "RubbaBoy/Qilletni", "qilletni-src": "qilletni-std-lib/qilletni-src" },
+    { "name": "spotify", "repo": "RubbaBoy/Qilletni", "qilletni-src": "qilletni-spotify/qilletni-src" },
+    { "name": "lastfm", "repo": "RubbaBoy/QilletniLastFm", "qilletni-src": "qilletni-src" }
+  ]
+}

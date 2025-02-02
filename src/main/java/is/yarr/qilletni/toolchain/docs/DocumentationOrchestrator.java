@@ -16,8 +16,10 @@ public class DocumentationOrchestrator {
         LOGGER.debug("Generating docs for: {}", qilletniInfo.name());
 
         try {
-            var docGenerator = new DocGenerator();
-            docGenerator.generateDocs(outputDirectory, cacheDirectory, inputDirectory, qilletniInfo.name());
+            var docGenerator = new DocGenerator(cacheDirectory, outputDirectory);
+            docGenerator.generateDocs(inputDirectory, qilletniInfo);
+            
+            docGenerator.regenerateGlobalIndex();
         } catch (IOException e) {
             LOGGER.error("Failed to generate docs for: {}", qilletniInfo.name(), e);
         }
