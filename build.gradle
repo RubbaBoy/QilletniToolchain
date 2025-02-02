@@ -23,7 +23,7 @@ repositories {
         url = "https://maven.pkg.github.com/rubbaboy/Qilletni"
         credentials {
             username = System.getenv("GITHUB_ACTOR")
-            password = System.getenv("GITHUB_TOKEN")
+            password = System.getenv("PACKAGE_PAT")
         }
     }
 
@@ -31,7 +31,7 @@ repositories {
         url = "https://maven.pkg.github.com/rubbaboy/QilletniDocgen"
         credentials {
             username = System.getenv("GITHUB_ACTOR")
-            password = System.getenv("GITHUB_TOKEN")
+            password = System.getenv("PACKAGE_PAT")
         }
     }
 }
