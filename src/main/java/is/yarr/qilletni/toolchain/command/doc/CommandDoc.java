@@ -44,9 +44,7 @@ public class CommandDoc implements Callable<Integer> {
         var qilletniInfo = infoParser.readQilletniInfo(sourcePath);
 
         var documentationOrchestrator = new DocumentationOrchestrator();
-        documentationOrchestrator.beginDocGen(qilletniInfo, cachePath, sourcePath, outputFilePath);
-
-        return 0;
+        return documentationOrchestrator.beginDocGen(qilletniInfo, cachePath, sourcePath, outputFilePath);
     }
 
     private Path getCachePath() throws IOException {

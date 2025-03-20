@@ -1,4 +1,4 @@
-module is.yarr.qilletni.toolchain {
+module qilletni.toolchain {
     uses is.yarr.qilletni.api.auth.ServiceProvider;
     
     requires org.slf4j;

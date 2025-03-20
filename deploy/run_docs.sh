@@ -1,5 +1,5 @@
 #!/bin/bash
-# /opt/qilletni/run_latest.sh
+# /opt/qilletni/run_docs.sh
 #
 # This script accepts one argument: a library name (without spaces).
 # It looks up the given library in /opt/qilletni/allowed_releases.json to retrieve:
@@ -12,6 +12,11 @@
 #    java -jar /tmp/app.jar <clone_path>/<qilletni-src>
 #
 # Requirements: git, curl, jq, docker, and /opt/qilletni/allowed_releases.json
+
+# Define Docker container parameters.
+CONTAINER_NAME="qilletni_app_${LIBRARY_NAME}"
+SERVE_PATH="/srv/docker/nginx/php/qilletni-docs.yarr.is"
+CACHE_PATH="/opt/qilletni/cache"
 
 set -euo pipefail
 
@@ -30,7 +35,7 @@ fi
 
 ALLOWED_JSON="/opt/qilletni/allowed_releases.json"
 if [ ! -f "$ALLOWED_JSON" ]; then
-  echo "Error: Allowed releases file not found at $ALLOWED_JSON"
+  echo "Error: Allowed releases file not found at $ALLOWED_JSON"asd
   exit 1
 fi
 
@@ -73,12 +78,11 @@ FINAL_PARAM="${CLONE_PATH}/${QILLETNI_SRC}"
 echo "Final parameter to be passed to jar: ${FINAL_PARAM}"
 
 # Define the jar asset location.
-ASSET_NAME="Qilletni.jar"
+TOOLCHAIN_JAR="/tmp/Qilletni.jar"
 
-# Define Docker container parameters.
-CONTAINER_NAME="qilletni_app_${LIBRARY_NAME}"
-SERVE_PATH="/srv/docker/nginx/qilletni-docs.yarr.is"
-CACHE_PATH="/opt/qilletni/cache"
+/opt/qilletni/download_toolchain.sh "${TOOLCHAIN_JAR}"
+
+echo "download_toolchain.sh exited with code $?"
 
 mkdir -p "${CACHE_PATH}"
 
@@ -92,7 +96,7 @@ echo "Pulling OpenJDK 22 image..."
 docker pull openjdk:22
 
 echo "Starting Docker container ${CONTAINER_NAME}..."
-docker run -d --name "${CONTAINER_NAME}" \
+docker run --rm --name "${CONTAINER_NAME}" \
   -v "${SERVE_PATH}":"${SERVE_PATH}":rw \
   -v "${CACHE_PATH}":"${CACHE_PATH}":rw \
   -v "/tmp":"/tmp":rw \
@@ -100,7 +104,7 @@ docker run -d --name "${CONTAINER_NAME}" \
   bash -c "\
     set -euo pipefail; \
     echo 'Running application with Java 22...'; \
-    java -jar /tmp/${ASSET_NAME} doc -o ${SERVE_PATH} -c ${CACHE_PATH} ${FINAL_PARAM} \
+    java -jar ${TOOLCHAIN_JAR} doc -o ${SERVE_PATH} -c ${CACHE_PATH} ${FINAL_PARAM} \
   "
 
 echo "Deployment complete."

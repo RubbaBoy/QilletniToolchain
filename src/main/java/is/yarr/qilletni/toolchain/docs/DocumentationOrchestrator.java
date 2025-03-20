@@ -12,7 +12,7 @@ public class DocumentationOrchestrator {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentationOrchestrator.class);
     
-    public void beginDocGen(QilletniInfoData qilletniInfo, Path cacheDirectory, Path inputDirectory, Path outputDirectory) {
+    public int beginDocGen(QilletniInfoData qilletniInfo, Path cacheDirectory, Path inputDirectory, Path outputDirectory) {
         LOGGER.debug("Generating docs for: {}", qilletniInfo.name());
 
         try {
@@ -22,8 +22,10 @@ public class DocumentationOrchestrator {
             docGenerator.regenerateGlobalIndex();
         } catch (IOException e) {
             LOGGER.error("Failed to generate docs for: {}", qilletniInfo.name(), e);
+            return 1;
         }
         
+        return 0;
     }
     
 }
