@@ -4,20 +4,21 @@ plugins {
     id 'application'
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
-}
+} 
 
-group = 'is.yarr.qilletni.toolchain'
+group = 'dev.qilletni.toolchain'
 version = '1.0.0-SNAPSHOT'
 
 sourceCompatibility = JavaVersion.VERSION_22
 targetCompatibility = JavaVersion.VERSION_22
 
 application {
-    mainClass = 'is.yarr.qilletni.toolchain.QilletniToolchainApplication'
+    mainClass = 'dev.qilletni.toolchain.QilletniToolchainApplication'
 }
 
 repositories {
     mavenCentral()
+    mavenLocal()
 
     maven {
         url = "https://maven.pkg.github.com/rubbaboy/Qilletni"
@@ -40,11 +41,11 @@ dependencies {
     implementation 'info.picocli:picocli:4.7.5'
     annotationProcessor 'info.picocli:picocli-codegen:4.7.5'
     
-    implementation 'is.yarr.qilletni:qilletni:1.0.0-SNAPSHOT'
-    implementation 'is.yarr.qilletni:qilletni:1.0.0-SNAPSHOT:sources'
+    implementation 'dev.qilletni.impl:qilletni:1.0.0-SNAPSHOT'
+    implementation 'dev.qilletni.impl:qilletni:1.0.0-SNAPSHOT:sources'
     
-    implementation 'is.yarr.qilletni.api:qilletni-api:1.0.0-SNAPSHOT'
-    implementation 'is.yarr.qilletni.docgen:qilletni-docgen:1.0.0-SNAPSHOT'
+    implementation 'dev.qilletni.api:qilletni-api:1.0.0-SNAPSHOT'
+    implementation 'dev.qilletni.docgen:qilletni-docgen:1.0.0-SNAPSHOT'
 
     // Configs
     implementation 'org.yaml:snakeyaml:2.2'

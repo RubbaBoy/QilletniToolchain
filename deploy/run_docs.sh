@@ -15,7 +15,7 @@
 
 # Define Docker container parameters.
 CONTAINER_NAME="qilletni_app_${LIBRARY_NAME}"
-SERVE_PATH="/srv/docker/nginx/php/qilletni-docs.yarr.is"
+SERVE_PATH="/srv/docker/nginx/php/docs.qilletni.dev"
 CACHE_PATH="/opt/qilletni/cache"
 
 set -euo pipefail
