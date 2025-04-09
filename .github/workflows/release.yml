@@ -41,7 +41,6 @@ jobs:
         run: |
           if [ "$GITHUB_EVENT_NAME" = "push" ]; then
             echo "Detected push event – creating pre-release."
-            # Use the Gradle version and append the run number for uniqueness.
             RELEASE_TAG="v${{ steps.get_version.outputs.version }}-${GITHUB_RUN_NUMBER}"
             PRERELEASE="true"
           else
@@ -53,10 +52,17 @@ jobs:
           echo "PRERELEASE=$PRERELEASE" >> $GITHUB_OUTPUT
           echo "Release tag will be: $RELEASE_TAG and prerelease is: $PRERELEASE"
 
+      - name: Package Release Asset
+        run: |
+          tar -czvf qilletni-${{ steps.get_version.outputs.version }}.tar.gz \
+            build/libs/QilletniToolchain.jar \
+            scripts/qilletni.bat \
+            scripts/qilletni
+
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v2
         with:
           prerelease: ${{ steps.set_release.outputs.PRERELEASE }}
           tag_name: ${{ steps.set_release.outputs.RELEASE_TAG }}
           generate_release_notes: true
-          files: build/libs/QilletniToolchain.jar
+          files: qilletni-${{ steps.get_version.outputs.version }}.tar.gz
