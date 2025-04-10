@@ -21,7 +21,7 @@ public class LibraryValidator {
         for (var library : libraries) {
             if (library.name().equals(dependency.name())) {
                 if (dependency.version().permitsVersion(library.version())) {
-                    LOGGER.info("[{}] Dependency '{}' version {} matches required version {}", qllInfo.name(), dependency.name(), library.version(), dependency.version());
+                    LOGGER.debug("[{}] Dependency '{}' version {} matches required version {}", qllInfo.name(), dependency.name(), library.version(), dependency.version());
                     return true;
                 }
                 
