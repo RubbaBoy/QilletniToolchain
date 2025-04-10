@@ -50,7 +50,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }} # ghcr.io/RubbaBoy/QilletniToolchain
+          images: ghcr.io/${{ vars.PUBLISH_CONTAINER_URL }} # ghcr.io/RubbaBoy/Qilletni
           tags: |
             type=raw,value=v${{ steps.get_version.outputs.version }}
             # Tag as 'latest' only for workflow_dispatch events (manual releases)
