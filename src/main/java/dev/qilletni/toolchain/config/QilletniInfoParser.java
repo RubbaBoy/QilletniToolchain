@@ -74,6 +74,8 @@ public class QilletniInfoParser {
         var version = Version.parseVersionString((String) Objects.requireNonNull(obj.get("version"), "'version' required in qilletni_info"))
                 .orElseThrow(() -> new InvalidVersionException("Invalid version"));
         
+        var sourceUrl = (String) obj.getOrDefault("source_url", "");
+
         var providerClass = (String) obj.getOrDefault("provider", null);
         var nativeBindFactoryClass = (String) obj.getOrDefault("native_bind_factory", null);
         var nativeClasses = (List<String>) obj.getOrDefault("native_classes", Collections.emptyList());
@@ -94,7 +96,7 @@ public class QilletniInfoParser {
             return new QilletniInfoData.Dependency(dependencyName, dependencyVersion);
         }).toList();
         
-        return new QilletniInfoData(nameString, version, authorString, description, providerClass, nativeBindFactoryClass, nativeClasses, autoImportFiles, dependencyList);
+        return new QilletniInfoData(nameString, version, authorString, description, sourceUrl, providerClass, nativeBindFactoryClass, nativeClasses, autoImportFiles, dependencyList);
     }
     
 }
