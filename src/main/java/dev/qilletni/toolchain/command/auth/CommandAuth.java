@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Scanner;
 import java.util.concurrent.Callable;
 
+// This will be used with QPM
 @CommandLine.Command(name = "auth", description = "Authenticate with GitHub for QPM")
 public class CommandAuth implements Callable<Integer> {
     
