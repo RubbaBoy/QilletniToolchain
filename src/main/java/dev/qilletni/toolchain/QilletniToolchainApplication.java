@@ -1,8 +1,8 @@
 package dev.qilletni.toolchain;
 
 import dev.qilletni.toolchain.command.auth.CommandAuth;
-import dev.qilletni.toolchain.command.doc.CommandDoc;
 import dev.qilletni.toolchain.command.build.CommandBuild;
+import dev.qilletni.toolchain.command.doc.CommandDoc;
 import dev.qilletni.toolchain.command.init.CommandInit;
 import dev.qilletni.toolchain.command.persist.CommandPersist;
 import dev.qilletni.toolchain.command.run.CommandRun;

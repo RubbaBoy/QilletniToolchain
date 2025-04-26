@@ -1,10 +1,11 @@
 package dev.qilletni.toolchain.command.run;
 
-import dev.qilletni.impl.ServiceManager;
 import dev.qilletni.api.exceptions.QilletniException;
 import dev.qilletni.api.lib.qll.QllInfo;
+import dev.qilletni.impl.ServiceManager;
 import dev.qilletni.impl.lang.runner.QilletniProgramRunner;
 import dev.qilletni.impl.lib.LibrarySourceFileResolver;
+import dev.qilletni.toolchain.PathUtility;
 import dev.qilletni.toolchain.qll.LibraryValidator;
 import dev.qilletni.toolchain.qll.QllJarExtractor;
 import dev.qilletni.toolchain.qll.QllLoader;
@@ -16,7 +17,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -28,9 +28,6 @@ public class CommandRun implements Callable<Integer> {
     
     @CommandLine.Option(names = {"--dependency-path", "-d"}, description = "The directory that holds all dependencies")
     public Path dependencyPath;
-    
-//    @CommandLine.Option(names = {"--use-credentials", "-u"}, description = "All the credential files to use with available providers")
-//    public List<String> useCredentials;
     
     @CommandLine.Option(names = {"-h", "--help"}, usageHelp = true, description = "Display a help message")
     private boolean helpRequested = false;
@@ -50,7 +47,7 @@ public class CommandRun implements Callable<Integer> {
         }
         
         if (dependencyPath == null) {
-            dependencyPath = getDependencyPath();
+            dependencyPath = PathUtility.getDependencyPath();
         }
 
         var tempRunDir = Files.createTempDirectory("ql-run");
@@ -96,9 +93,12 @@ public class CommandRun implements Callable<Integer> {
 
             var runner = new QilletniProgramRunner(dynamicProvider, librarySourceFileResolver, loadedLibraries);
 
+            LOGGER.debug("Importing initial files");
+            
             runner.importInitialFiles();
 
             try {
+                LOGGER.debug("Running program: {}", file.getFileName());
                 runner.runProgram(file);
             } catch (QilletniException | IOException e) {
                 LOGGER.error("An exception occurred while running {}", file.getFileName(), e);
@@ -112,16 +112,6 @@ public class CommandRun implements Callable<Integer> {
         }
 
         return 0;
-    }
-    
-    private Path getDependencyPath() throws IOException {
-        var userHome = System.getProperty("user.home");
-        
-        var qilletniDir = Paths.get(userHome, ".qilletni", "libraries");
-
-        Files.createDirectories(qilletniDir);
-        
-        return qilletniDir;
     }
 
     @Override

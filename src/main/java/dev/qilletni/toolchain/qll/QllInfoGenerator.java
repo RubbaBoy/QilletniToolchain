@@ -3,7 +3,6 @@ package dev.qilletni.toolchain.qll;
 import com.google.gson.Gson;
 import dev.qilletni.api.lib.qll.QllInfo;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;

@@ -162,8 +162,8 @@ public class GradleProjectInitializer {
 
     private void generateGradlewScripts() throws IOException, URISyntaxException {
         
-        String gradlewUrl = "https://raw.githubusercontent.com/gradle/gradle/refs/tags/v%s/gradlew".formatted(tagVersion);
-
+        var gradlewUrl = "https://raw.githubusercontent.com/gradle/gradle/refs/tags/v%s/gradlew".formatted(tagVersion);
+        var gradlewBatUrl = "%s.bat".formatted(gradlewUrl);
 
         LOGGER.debug("Downloading Gradle scripts from {}", gradlewUrl);
         
@@ -188,8 +188,8 @@ public class GradleProjectInitializer {
             }
         }
 
-        var gradleBatPath = projectDir.resolve("gradle.bat");
-        try (var in = new URI(gradlewUrl).toURL().openStream()) {
+        var gradleBatPath = projectDir.resolve("gradlew.bat");
+        try (var in = new URI(gradlewBatUrl).toURL().openStream()) {
             Files.copy(in, gradleBatPath, StandardCopyOption.REPLACE_EXISTING);
         }
     }
