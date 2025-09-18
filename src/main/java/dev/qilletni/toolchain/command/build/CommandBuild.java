@@ -49,8 +49,7 @@ public class CommandBuild implements Callable<Integer> {
         var sourcePath = projectRoot.resolve("qilletni-src");
         var buildDirectory = projectRoot.resolve("build");
 
-        var infoParser = new QilletniInfoParser();
-        var qilletniInfo = infoParser.readQilletniInfo(sourcePath);
+        var qilletniInfo = QilletniInfoParser.readQilletniInfo(sourcePath);
 
         LOGGER.debug("Qilletni Info = {}", qilletniInfo);
 
@@ -61,21 +60,26 @@ public class CommandBuild implements Callable<Integer> {
         FileUtil.clearAndCreateDirectory(qllBuildPath);
 
         if (GradleProjectHelper.isGradleProject(projectRoot)) {
-            var gradleJarOptional = GradleProjectHelper.findProjectJar(projectRoot, verboseGradleOutput);
+            var gradleProjectHelper = GradleProjectHelper.createProjectHelper(projectRoot).orElseThrow(() -> new RuntimeException("Unable to configure Gradle project"));
+            var gradleJarOptional = gradleProjectHelper.findProjectJar(verboseGradleOutput);
             
             if (gradleJarOptional.isPresent()) {
+                LOGGER.debug("Project jar will be extracted from: {}", gradleJarOptional);
+
                 var gradleJar = gradleJarOptional.get();
 
                 // Build the jar if it doesn't exist, or if it's not told to NOT rebuild
                 if (!Files.exists(gradleJar) || !noBuildJar) {
                     LOGGER.debug("Building Java .jar with shadowJar task");
-                    GradleProjectHelper.runShadowJarTask(projectRoot, verboseGradleOutput);
+                    gradleProjectHelper.runShadowJarTask(verboseGradleOutput);
                 }
 
                 // Copy it if it's been created
                 if (Files.exists(gradleJar)) {
                     Files.copy(gradleJar, qllBuildPath.resolve("native.jar"));
                 }
+            } else {
+                LOGGER.info("Unable to find jar output found in Gradle project");
             }
         }
 
@@ -106,6 +110,8 @@ public class CommandBuild implements Callable<Integer> {
         var qllPackager = new QllPackager();
 
         qllPackager.packageQll(qllBuildPath, destinationFile);
+
+        LOGGER.info("Built library to {}", destinationFile.toAbsolutePath());
 
         return 0;
     }

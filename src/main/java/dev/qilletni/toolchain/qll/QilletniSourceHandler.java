@@ -14,7 +14,7 @@ public class QilletniSourceHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(QilletniSourceHandler.class);
 
     public void moveQilletniSource(Path outPath, Path qilletniSourcePath) throws IOException {
-        var sourceOutDir = outPath.resolve("src");
+        var sourceOutDir = outPath.resolve("qilletni-src");
         Files.createDirectories(sourceOutDir);
 
         try (var walk = Files.walk(qilletniSourcePath, FileVisitOption.FOLLOW_LINKS)) {

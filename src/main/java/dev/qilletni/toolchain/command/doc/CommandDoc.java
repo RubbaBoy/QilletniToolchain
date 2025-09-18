@@ -38,8 +38,7 @@ public class CommandDoc implements Callable<Integer> {
         
         LOGGER.debug("Cache path: {}", cachePath);
         
-        var infoParser = new QilletniInfoParser();
-        var qilletniInfo = infoParser.readQilletniInfo(sourcePath);
+        var qilletniInfo = QilletniInfoParser.readQilletniInfo(sourcePath);
 
         var documentationOrchestrator = new DocumentationOrchestrator();
         return documentationOrchestrator.beginDocGen(qilletniInfo, cachePath, sourcePath, outputFilePath);

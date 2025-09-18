@@ -31,6 +31,9 @@ public class CommandRun implements Callable<Integer> {
     
     @CommandLine.Option(names = {"-h", "--help"}, usageHelp = true, description = "Display a help message")
     private boolean helpRequested = false;
+
+    @CommandLine.Option(names = {"--local-library", "-l"}, description = "If running a library example, the path of the library root it's in")
+    private Path localLibrary;
     
     @CommandLine.Parameters(description = "The .ql file to run", index = "0")
     private Path file; // first is the file to run, after is the params
@@ -57,6 +60,11 @@ public class CommandRun implements Callable<Integer> {
         var librarySourceFileResolver = new LibrarySourceFileResolver();
         
         var loadedLibraries = new ArrayList<QllInfo>();
+
+        if (localLibrary != null) {
+            LOGGER.info("Loading local library at {}", localLibrary);
+            loadedLibraries.add(qllLoader.loadLocalLibrary(librarySourceFileResolver, localLibrary));
+        }
 
         try (var deps = Files.list(dependencyPath)) {
             deps.filter(path -> path.getFileName().toString().endsWith(".qll"))

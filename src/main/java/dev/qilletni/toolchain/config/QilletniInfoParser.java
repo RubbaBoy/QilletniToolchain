@@ -40,7 +40,7 @@ public class QilletniInfoParser {
      * @param directory The direct parent of the info file
      * @return The {@code qilletni_info} file, if it exists
      */
-    public Optional<Path> findQilletniInfoFile(Path directory) {
+    public static Optional<Path> findQilletniInfoFile(Path directory) {
         for (var fileExtension : QILLETNI_FILE_EXTENSIONS) {
             var qilletniInfoFile = directory.resolve(String.format("%s.%s", QILLETNI_INFO, fileExtension));
 
@@ -60,9 +60,9 @@ public class QilletniInfoParser {
      * @return The read {@link #QILLETNI_INFO} file data
      * @throws IOException
      */
-    public QilletniInfoData readQilletniInfo(Path qilletniDirectory) throws IOException {
+    public static QilletniInfoData readQilletniInfo(Path qilletniDirectory) throws IOException {
         var qilletniInfoFile = findQilletniInfoFile(qilletniDirectory)
-                .orElseThrow(() -> new FileNotFoundException(QILLETNI_INFO + " file not found!"));
+                .orElseThrow(() -> new FileNotFoundException(QILLETNI_INFO + " file not found! in " + qilletniDirectory.toString()));
 
         var yaml = new Yaml();
         Map<String, Object> obj = yaml.load(Files.newInputStream(qilletniInfoFile));
@@ -80,8 +80,8 @@ public class QilletniInfoParser {
         var nativeBindFactoryClass = (String) obj.getOrDefault("native_bind_factory", null);
         var nativeClasses = (List<String>) obj.getOrDefault("native_classes", Collections.emptyList());
         var autoImportFiles = (List<String>) obj.getOrDefault("auto_import", Collections.emptyList());
-        var dependencies = (List<String>) obj.getOrDefault("dependencies", Collections.emptyList());
-        
+        var dependencies = (List<String>) Objects.requireNonNullElse(obj.get("dependencies"), Collections.emptyList());
+
         var dependencyList = dependencies.stream().map(dependencyString -> {
             var dependencySplit = dependencyString.split(":");
             

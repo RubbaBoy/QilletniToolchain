@@ -31,6 +31,9 @@ public class CommandInit implements Callable<Integer> {
     @CommandLine.Option(names = {"--native-class", "-c"}, description = "The native canonical class name to initialize a project with. If no class is specified, native bindings will not be set up.")
     public String nativeClass;
 
+    @CommandLine.Option(names = {"--no-native", "-o"}, description = "Do not set up native bindings (noninteractive)")
+    public boolean noNative;
+
     @CommandLine.Option(names = {"--type", "-t"}, description = "The type of the project to initialize, either 'library' or 'application'", defaultValue = "application")
     public String projectType;
     
@@ -63,7 +66,7 @@ public class CommandInit implements Callable<Integer> {
             authorName = scanner.nextLine().trim();
         }
         
-        if (nativeClass == null) {
+        if (!noNative && nativeClass == null) {
             System.out.println("What is the fully qualified native Java class name? (e.g. dev.qilletni.lib.Demo, Leave blank for no native bindings)");
             var receivedNativeClass = scanner.nextLine().trim();
             if (!receivedNativeClass.isBlank()) {
