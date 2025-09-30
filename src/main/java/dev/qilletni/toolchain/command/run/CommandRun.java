@@ -5,6 +5,7 @@ import dev.qilletni.api.lib.qll.QllInfo;
 import dev.qilletni.impl.ServiceManager;
 import dev.qilletni.impl.lang.runner.QilletniProgramRunner;
 import dev.qilletni.impl.lib.LibrarySourceFileResolver;
+import dev.qilletni.toolchain.LogSetup;
 import dev.qilletni.toolchain.PathUtility;
 import dev.qilletni.toolchain.qll.LibraryValidator;
 import dev.qilletni.toolchain.qll.QllJarExtractor;
@@ -34,6 +35,9 @@ public class CommandRun implements Callable<Integer> {
 
     @CommandLine.Option(names = {"--local-library", "-l"}, description = "If running a library example, the path of the library root it's in")
     private Path localLibrary;
+
+    @CommandLine.Option(names = {"--log-port", "-p"}, defaultValue = "-1", description = "The port to use for logging")
+    private int logPort;
     
     @CommandLine.Parameters(description = "The .ql file to run", index = "0")
     private Path file; // first is the file to run, after is the params
@@ -43,6 +47,10 @@ public class CommandRun implements Callable<Integer> {
 
     @Override
     public Integer call() throws IOException {
+
+        if (logPort > 0) {
+            LogSetup.setupLogSocket(logPort);
+        }
 
         if (Files.notExists(file)) {
             LOGGER.error("Qilletni input file {} does not exist!", file.toAbsolutePath());
@@ -60,11 +68,15 @@ public class CommandRun implements Callable<Integer> {
         var librarySourceFileResolver = new LibrarySourceFileResolver();
         
         var loadedLibraries = new ArrayList<QllInfo>();
+        QllInfo localLibraryQll = null;
 
         if (localLibrary != null) {
             LOGGER.info("Loading local library at {}", localLibrary);
-            loadedLibraries.add(qllLoader.loadLocalLibrary(librarySourceFileResolver, localLibrary));
+            localLibraryQll = qllLoader.loadLocalLibrary(librarySourceFileResolver, localLibrary);
+            loadedLibraries.add(localLibraryQll);
         }
+
+        var localLibraryName = localLibraryQll != null ? localLibraryQll.name() : null;
 
         try (var deps = Files.list(dependencyPath)) {
             deps.filter(path -> path.getFileName().toString().endsWith(".qll"))
@@ -72,7 +84,14 @@ public class CommandRun implements Callable<Integer> {
                         qllJarExtractor.extractJarTo(path, tempRunDir);
 
                         try {
-                            loadedLibraries.add(qllLoader.loadQll(librarySourceFileResolver, path));
+                            var loadedQll = qllLoader.loadQll(librarySourceFileResolver, path);
+
+                            if (loadedQll.name().equals(localLibraryName)) {
+                                LOGGER.debug("Skipping loading local library {} from dependencies", localLibraryName);
+                                return;
+                            }
+
+                            loadedLibraries.add(loadedQll);
                         } catch (IOException | URISyntaxException e) {
                             throw new RuntimeException(e);
                         }

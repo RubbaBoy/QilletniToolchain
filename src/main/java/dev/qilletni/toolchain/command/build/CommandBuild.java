@@ -2,6 +2,7 @@ package dev.qilletni.toolchain.command.build;
 
 import dev.qilletni.api.lib.qll.QllInfo;
 import dev.qilletni.toolchain.FileUtil;
+import dev.qilletni.toolchain.LogSetup;
 import dev.qilletni.toolchain.PathUtility;
 import dev.qilletni.toolchain.config.QilletniInfoParser;
 import dev.qilletni.toolchain.qll.GradleProjectHelper;
@@ -38,8 +39,15 @@ public class CommandBuild implements Callable<Integer> {
     @CommandLine.Option(names = {"--verbose", "-v"}, description = "Verbose Gradle output")
     public boolean verboseGradleOutput;
 
+    @CommandLine.Option(names = {"--log-port", "-p"}, defaultValue = "-1", description = "The port to use for logging")
+    private int logPort;
+
     @Override
     public Integer call() throws IOException {
+        if (logPort > 0) {
+            LogSetup.setupLogSocket(logPort);
+        }
+
         LOGGER.debug("Called build! {}", this);
 
         LOGGER.debug("Project root: {}", projectRoot);

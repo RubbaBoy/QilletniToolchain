@@ -8,4 +8,5 @@ module qilletni.toolchain {
     requires org.yaml.snakeyaml;
     requires info.picocli;
     requires com.google.gson;
+    requires org.apache.logging.log4j.core;
 }
