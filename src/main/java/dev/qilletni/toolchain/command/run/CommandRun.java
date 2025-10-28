@@ -7,6 +7,7 @@ import dev.qilletni.impl.lang.runner.QilletniProgramRunner;
 import dev.qilletni.impl.lib.LibrarySourceFileResolver;
 import dev.qilletni.toolchain.LogSetup;
 import dev.qilletni.toolchain.PathUtility;
+import dev.qilletni.toolchain.qll.GradleProjectHelper;
 import dev.qilletni.toolchain.qll.LibraryValidator;
 import dev.qilletni.toolchain.qll.QllJarExtractor;
 import dev.qilletni.toolchain.qll.QllLoader;
@@ -35,6 +36,9 @@ public class CommandRun implements Callable<Integer> {
 
     @CommandLine.Option(names = {"--local-library", "-l"}, description = "If running a library example, the path of the library root it's in")
     private Path localLibrary;
+
+    @CommandLine.Option(names = {"--use-native-jar", "-j"}, description = "If running a library example, use the native jar of it")
+    private boolean useNativeJar;
 
     @CommandLine.Option(names = {"--log-port", "-p"}, defaultValue = "-1", description = "The port to use for logging")
     private int logPort;
@@ -74,6 +78,28 @@ public class CommandRun implements Callable<Integer> {
             LOGGER.info("Loading local library at {}", localLibrary);
             localLibraryQll = qllLoader.loadLocalLibrary(librarySourceFileResolver, localLibrary);
             loadedLibraries.add(localLibraryQll);
+
+            if (useNativeJar) {
+                if (GradleProjectHelper.isGradleProject(localLibrary)) {
+                    var gradleProjectHelper = GradleProjectHelper.createProjectHelper(localLibrary).orElseThrow(() -> new RuntimeException("Unable to interact with Gradle project"));
+                    var gradleJarOptional = gradleProjectHelper.findProjectJar(true);
+
+                    if (gradleJarOptional.isPresent()) {
+                        LOGGER.debug("Project jar will be extracted from: {}", gradleJarOptional);
+
+                        var gradleJar = gradleJarOptional.get();
+
+                        // Copy it if it's been created
+                        if (Files.exists(gradleJar)) {
+                            qllJarExtractor.copyLocalNativeJar(gradleJar, tempRunDir, localLibraryQll);
+                        } else {
+                            LOGGER.error("Expected to find jar file {}, has it been built?", gradleJar);
+                        }
+                    } else {
+                        LOGGER.error("Unable to find jar output found in Gradle project");
+                    }
+                }
+            }
         }
 
         var localLibraryName = localLibraryQll != null ? localLibraryQll.name() : null;
