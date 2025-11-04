@@ -82,7 +82,7 @@ public class CommandRun implements Callable<Integer> {
             if (useNativeJar) {
                 if (GradleProjectHelper.isGradleProject(localLibrary)) {
                     var gradleProjectHelper = GradleProjectHelper.createProjectHelper(localLibrary).orElseThrow(() -> new RuntimeException("Unable to interact with Gradle project"));
-                    var gradleJarOptional = gradleProjectHelper.findProjectJar(true);
+                    var gradleJarOptional = gradleProjectHelper.findProjectJar(false);
 
                     if (gradleJarOptional.isPresent()) {
                         LOGGER.debug("Project jar will be extracted from: {}", gradleJarOptional);
